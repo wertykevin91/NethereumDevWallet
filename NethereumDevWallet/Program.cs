@@ -16,7 +16,14 @@ namespace NethereumDevWallet
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            InitializeEntryForm();
+            Application.Run();
+        }
+
+        private static void InitializeEntryForm()
+        {
+            var mainForm = new EntryForm();
+            mainForm.Show();
         }
     }
 }

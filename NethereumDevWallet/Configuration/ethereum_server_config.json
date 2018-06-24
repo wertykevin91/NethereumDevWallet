@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Name": "localhost:8545",
+    "Url": "http://localhost:8545"
+  },
+  {
+    "Name": "localhost:7545",
+    "Url": "http://localhost:7545"
+  },
+  {
+    "Name": "Rinkeby",
+    "Url": "https://rinkeby.infura.io"
+  }
+]
