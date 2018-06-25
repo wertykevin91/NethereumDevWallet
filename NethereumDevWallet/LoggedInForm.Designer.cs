@@ -30,6 +30,7 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.hashAndReceiptTextBox = new System.Windows.Forms.RichTextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.sentTransactionHashTextBox = new System.Windows.Forms.RichTextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -43,7 +44,15 @@
             this.gasPriceToUseTextBox = new System.Windows.Forms.MaskedTextBox();
             this.ethToSendTextBox = new System.Windows.Forms.MaskedTextBox();
             this.receipientAddressTextBox = new System.Windows.Forms.MaskedTextBox();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.drainSendButton = new System.Windows.Forms.Button();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.drainSignedTransactionRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.drainTransactionReceiptRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.drainTransactionRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.drainReceipientAddressTextBox = new System.Windows.Forms.MaskedTextBox();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.networkTextBox = new System.Windows.Forms.TextBox();
             this.balanceTextBox = new System.Windows.Forms.TextBox();
@@ -58,12 +67,14 @@
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(12, 152);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -73,6 +84,7 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.LightGray;
+            this.tabPage1.Controls.Add(this.hashAndReceiptTextBox);
             this.tabPage1.Controls.Add(this.panel1);
             this.tabPage1.Controls.Add(this.label9);
             this.tabPage1.Controls.Add(this.sentTransactionDataTextBox);
@@ -91,6 +103,16 @@
             this.tabPage1.Size = new System.Drawing.Size(768, 361);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Send";
+            // 
+            // hashAndReceiptTextBox
+            // 
+            this.hashAndReceiptTextBox.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.hashAndReceiptTextBox.Location = new System.Drawing.Point(409, 156);
+            this.hashAndReceiptTextBox.Name = "hashAndReceiptTextBox";
+            this.hashAndReceiptTextBox.ReadOnly = true;
+            this.hashAndReceiptTextBox.Size = new System.Drawing.Size(342, 185);
+            this.hashAndReceiptTextBox.TabIndex = 12;
+            this.hashAndReceiptTextBox.Text = "";
             // 
             // panel1
             // 
@@ -203,17 +225,98 @@
             this.receipientAddressTextBox.Name = "receipientAddressTextBox";
             this.receipientAddressTextBox.Size = new System.Drawing.Size(213, 20);
             this.receipientAddressTextBox.TabIndex = 0;
-            this.receipientAddressTextBox.TextChanged += new System.EventHandler(this.PrepareTransaction);
+            this.receipientAddressTextBox.TextChanged += new System.EventHandler(this.PrepareSendTransaction);
             // 
-            // tabPage2
+            // tabPage3
             // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(768, 361);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "ERC20";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage3.BackColor = System.Drawing.Color.LightGray;
+            this.tabPage3.Controls.Add(this.drainSendButton);
+            this.tabPage3.Controls.Add(this.panel2);
+            this.tabPage3.Controls.Add(this.drainTransactionReceiptRichTextBox);
+            this.tabPage3.Controls.Add(this.label11);
+            this.tabPage3.Controls.Add(this.drainTransactionRichTextBox);
+            this.tabPage3.Controls.Add(this.label10);
+            this.tabPage3.Controls.Add(this.drainReceipientAddressTextBox);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(768, 361);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Drain";
+            // 
+            // drainSendButton
+            // 
+            this.drainSendButton.Location = new System.Drawing.Point(123, 149);
+            this.drainSendButton.Name = "drainSendButton";
+            this.drainSendButton.Size = new System.Drawing.Size(213, 31);
+            this.drainSendButton.TabIndex = 17;
+            this.drainSendButton.Text = "Generate && Send";
+            this.drainSendButton.UseVisualStyleBackColor = true;
+            this.drainSendButton.Click += new System.EventHandler(this.drainSendButton_Click);
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.drainSignedTransactionRichTextBox);
+            this.panel2.Location = new System.Drawing.Point(15, 224);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(332, 110);
+            this.panel2.TabIndex = 16;
+            // 
+            // drainSignedTransactionRichTextBox
+            // 
+            this.drainSignedTransactionRichTextBox.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.drainSignedTransactionRichTextBox.Location = new System.Drawing.Point(3, 3);
+            this.drainSignedTransactionRichTextBox.Name = "drainSignedTransactionRichTextBox";
+            this.drainSignedTransactionRichTextBox.ReadOnly = true;
+            this.drainSignedTransactionRichTextBox.Size = new System.Drawing.Size(326, 104);
+            this.drainSignedTransactionRichTextBox.TabIndex = 0;
+            this.drainSignedTransactionRichTextBox.Text = "";
+            // 
+            // drainTransactionReceiptRichTextBox
+            // 
+            this.drainTransactionReceiptRichTextBox.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.drainTransactionReceiptRichTextBox.Location = new System.Drawing.Point(420, 149);
+            this.drainTransactionReceiptRichTextBox.Name = "drainTransactionReceiptRichTextBox";
+            this.drainTransactionReceiptRichTextBox.ReadOnly = true;
+            this.drainTransactionReceiptRichTextBox.Size = new System.Drawing.Size(342, 185);
+            this.drainTransactionReceiptRichTextBox.TabIndex = 15;
+            this.drainTransactionReceiptRichTextBox.Text = "";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(417, 10);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(63, 13);
+            this.label11.TabIndex = 14;
+            this.label11.Text = "Transaction";
+            // 
+            // drainTransactionRichTextBox
+            // 
+            this.drainTransactionRichTextBox.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.drainTransactionRichTextBox.Location = new System.Drawing.Point(420, 26);
+            this.drainTransactionRichTextBox.Name = "drainTransactionRichTextBox";
+            this.drainTransactionRichTextBox.ReadOnly = true;
+            this.drainTransactionRichTextBox.Size = new System.Drawing.Size(342, 116);
+            this.drainTransactionRichTextBox.TabIndex = 13;
+            this.drainTransactionRichTextBox.Text = "";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(12, 9);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(99, 13);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Receipient Address";
+            // 
+            // drainReceipientAddressTextBox
+            // 
+            this.drainReceipientAddressTextBox.BackColor = System.Drawing.SystemColors.Window;
+            this.drainReceipientAddressTextBox.Location = new System.Drawing.Point(123, 6);
+            this.drainReceipientAddressTextBox.Name = "drainReceipientAddressTextBox";
+            this.drainReceipientAddressTextBox.Size = new System.Drawing.Size(213, 20);
+            this.drainReceipientAddressTextBox.TabIndex = 5;
             // 
             // addressTextBox
             // 
@@ -336,6 +439,9 @@
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.panel1.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
+            this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -345,7 +451,6 @@
 
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TextBox addressTextBox;
         private System.Windows.Forms.TextBox networkTextBox;
         private System.Windows.Forms.TextBox balanceTextBox;
@@ -370,5 +475,15 @@
         private System.Windows.Forms.RichTextBox sentTransactionHashTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.RichTextBox sentTransactionDataTextBox;
+        private System.Windows.Forms.RichTextBox hashAndReceiptTextBox;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.Button drainSendButton;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.RichTextBox drainSignedTransactionRichTextBox;
+        private System.Windows.Forms.RichTextBox drainTransactionReceiptRichTextBox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.RichTextBox drainTransactionRichTextBox;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.MaskedTextBox drainReceipientAddressTextBox;
     }
 }

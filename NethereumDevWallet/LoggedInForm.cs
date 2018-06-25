@@ -47,7 +47,7 @@ namespace NethereumDevWallet
 
         #region Initialize Data
 
-        private protected async Task InitializeData()
+        private async Task InitializeData()
         {
             try
             {
@@ -64,7 +64,7 @@ namespace NethereumDevWallet
             }
         }
 
-        private protected async Task InitializeBalance()
+        private async Task InitializeBalance()
         {
             Balance = await Web3.Eth.GetBalance.SendRequestAsync(Account.Address);
             var b = UnitConversion.Convert.FromWei(Balance, UnitConversion.EthUnit.Ether);
@@ -74,7 +74,7 @@ namespace NethereumDevWallet
             balanceTextBox.Text = $"{b.ToString($"N{decimalPlaces.ToString()}")}";
         }
 
-        private protected async Task InitializeGas()
+        private async Task InitializeGas()
         {
             StandardGasPrice = await Web3.Eth.GasPrice.SendRequestAsync();
             gasPriceTextBox.Text = $"{UnitConversion.Convert.FromWei(StandardGasPrice, 9).ToString("N3")}";
@@ -96,7 +96,7 @@ namespace NethereumDevWallet
 
         #region Send Tab
 
-        private protected void InitializeSendTab()
+        private void InitializeSendTab()
         {
             gasUsedToUseTextBox.Text = $"{StandardGasUsedForStandardTransaction.ToString("F0")}";
             gasPriceToUseTextBox.Text = $"{UnitConversion.Convert.FromWei(StandardGasPrice, 9).ToString("F3")}";
@@ -124,18 +124,26 @@ namespace NethereumDevWallet
                 sentTransactionDataTextBox.Text = JsonConvert.SerializeObject(tx);
 
                 var txSigned = await Web3.Eth.TransactionManager.SignTransactionRetrievingNextNonceAsync(tx);
-                sentTransactionHashTextBox.Text = txSigned;
+                sentTransactionHashTextBox.Text = $"Signed Tx: {txSigned}";
 
                 // sanity check because Ganache UI was displaying rounded up numbers which was truly killing me inside.
-                {
-                    var gasssss = BigInteger.Subtract(Balance, BigInteger.Multiply(gasInWeiHex, gasPriceInWeiHex));
-                    var final = BigInteger.Subtract(gasssss, ethInWeiHex);
+                //{
+                //    var gasssss = BigInteger.Subtract(Balance, BigInteger.Multiply(gasInWeiHex, gasPriceInWeiHex));
+                //    var final = BigInteger.Subtract(gasssss, ethInWeiHex);
 
-                    Console.WriteLine($"{Balance.ToString()} = {final.ToString()} + {BigInteger.Multiply(gasInWeiHex, gasPriceInWeiHex).ToString()} + {ethInWeiHex.Value.ToString()}");
-                }
+                //    Console.WriteLine($"{Balance.ToString()} = {final.ToString()} + {BigInteger.Multiply(gasInWeiHex, gasPriceInWeiHex).ToString()} + {ethInWeiHex.Value.ToString()}");
+                //}
 
-                var txInfo = await Web3.Eth.TransactionManager.SendTransactionAsync(tx);
-                sentTransactionHashTextBox.AppendText($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}Transaction Hash: {txInfo}");
+                var txHash = await Web3.Eth.TransactionManager.SendTransactionAsync(tx);
+                var txReceipt = await Web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
+
+                // Give users a receipt
+
+                //hashAndReceiptTextBox.Text = string.Empty;
+                //hashAndReceiptTextBox.AppendText($"Transaction Hash: {txHash}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
+                hashAndReceiptTextBox.Text = $"Receipt: {JsonConvert.SerializeObject(txReceipt)}";
+
+
                 InitializeBalance();
             }
             catch (Exception ex)
@@ -144,9 +152,9 @@ namespace NethereumDevWallet
             }
         }
 
-        public void PrepareTransaction(object sender, EventArgs e)
+        public void PrepareSendTransaction(object sender, EventArgs e)
         {
-            var valid = ValidateTransaction();
+            var valid = ValidateSendTransaction();
 
             if (!valid)
             {
@@ -154,7 +162,7 @@ namespace NethereumDevWallet
             }
         }
 
-        private protected bool ValidateTransaction()
+        private bool ValidateSendTransaction()
         {
             try
             {
@@ -172,10 +180,48 @@ namespace NethereumDevWallet
             return true;
         }
 
-        #endregion
 
         #endregion
 
-        
+        #region Drain Tab
+
+        private void drainSendButton_Click(object sender, EventArgs e)
+        {
+            var receipientAddress = drainReceipientAddressTextBox.Text;
+            DrainWalletToAddress(receipientAddress);
+        }
+
+        private async void DrainWalletToAddress(string receipientAddress)
+        {
+            // calculate
+
+            var balance = await Web3.Eth.GetBalance.SendRequestAsync(Account.Address);
+
+            var gasPrice = await Web3.Eth.GasPrice.SendRequestAsync();
+            var gasPriceHex = new Nethereum.Hex.HexTypes.HexBigInteger(gasPrice);
+
+            var gas = Web3.Eth.TransactionManager.DefaultGas;
+            var gasHex = new Nethereum.Hex.HexTypes.HexBigInteger(gas);
+
+            var balanceToTransfer = BigInteger.Subtract(balance, BigInteger.Multiply(gasPrice, gas));
+            var balanceToTransferHex = new Nethereum.Hex.HexTypes.HexBigInteger(balanceToTransfer);
+
+            var transactionInput = new Nethereum.RPC.Eth.DTOs.TransactionInput(null, receipientAddress, Account.Address, gasHex, gasPriceHex, balanceToTransferHex);
+            drainTransactionRichTextBox.Text = JsonConvert.SerializeObject(transactionInput);
+
+            drainSignedTransactionRichTextBox.Text = await Web3.TransactionManager.SignTransactionRetrievingNextNonceAsync(transactionInput);
+
+            //var txHash = await Web3.TransactionManager.SignTransactionRetrievingNextNonceAsync(transactionInput);
+
+            var txReceipt = await Web3.TransactionManager.TransactionReceiptService.SendRequestAndWaitForReceiptAsync(() => {
+                return Web3.TransactionManager.SendTransactionAsync(transactionInput);
+            });
+
+            drainTransactionReceiptRichTextBox.Text = JsonConvert.SerializeObject(txReceipt);
+        }
+
+        #endregion
+
+        #endregion
     }
 }
